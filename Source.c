@@ -1,290 +1,115 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <malloc.h>
-#ifndef success
-#define success 0
-#endif
-#ifndef error
-#define error 1
-#endif
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<stdlib.h>
+#include<string.h>
 
-
-struct osoba;
-typedef struct osoba *pozicija;
-typedef struct osoba {
-	char *ime;
-	char *prez;
-	int god;
-	pozicija next;
-}_osoba;
-
-
-int citanje(pozicija);
-int upisivanje(pozicija, char *, char *, int);
-int Printanje(pozicija);
-int pocetak(pozicija);
-int kraj(pozicija);
-int brisanje(pozicija);
-int trazenje(pozicija);
-
-
-int main()
+struct Element;
+typedef struct Element *position;
+typedef struct Element
 {
-	_osoba head;
-	int x = 0;
-	head.next = NULL;
+	int x;
+	position left;
+	position right;
+}_el;
 
-	if (citanje(&head) == error)
-		return error;
+position Unos_novog_el(position, int);
+position NewNode(int);
+int Ispis(position);
 
-	printf("Lista izgleda ovako : \n");
-	Printanje(head.next);
+int main(void)
+{
+	position stablo = NULL;
+	int izbor = 0;
+	int temp = 0;
+
+	while (izbor != 5)
+	{
+		printf("\nMENU\n1 - Unosenje novog elementa\n2 - Ispis elemenata\n3 - Brisanje\n4 - Pronalazenje nekog elemnta\n5 - Gasi\n");
+		printf("Unesite radnju koju zelite obaviti : ");
+		scanf("%d", &izbor);
+
+		switch (izbor)
+		{
+		case 1:
+			printf("Unesite vrijednost novog elemnta : ");
+			scanf("%d", &temp);
+
+			stablo = Unos_novog_el(stablo, temp);
+			break;
+		case 2:
+			printf("%d", stablo->x);
+			if (Ispis(stablo) != 0)
+				printf("Greska!!!\n");
+			break;
+		case 3:
+
+			break;
+		case 4:
+
+			break;
+		case 5:
+			break;
+		default:
+			printf("Niste unjeli ni jednu od ponudenih opcija, pokusajte ponovo!\n");
+		}
+	}
+
+	return 0;
+}
+int Ispis(position stablo)
+{
 	
-	printf("\nIzaberite broj onog slucaja koji zelite da se izvrsi : \n");
-	printf("1 - Dodavanje na pocetak liste\n2 - Dodavanje na kraj liste\n3 - Brisanje odredenog elementa sa liste\n4 - Trazenje elementa u listi\n");
-	scanf("%d", &x);
+		printf(" ");
 
-	switch (x)
-	{
-		case 1 :
+		if (stablo->left != NULL)
+		{
+			printf("(%d)", stablo->left->x);
 
-			if ((pocetak(&head) == success))
-			{
-				printf("\nLista izgleda ovako : \n");
-				Printanje(head.next);
-			}
-			else
-				return error;
-			break;
+			Ispis(stablo->left);
+		}
+		if (stablo->right != NULL)
+		{
+			printf("(%d)", stablo->right->x);
+			Ispis(stablo->right);
+		}
 
-		case 2 :
-			if ((kraj(&head) == success))
-			{
-				printf("\nLista izgleda ovako : \n");
-				Printanje(head.next);
-			}
-			else
-				return error;
-			break;
-
-		case 3 :
-			if ((brisanje(&head) == success))
-			{
-				printf("\nLista izgleda ovako : \n");
-				Printanje(head.next);
-			}
-			else
-				return error;
-			break;
-
-		case 4 :
-			if ((trazenje(&head) == success))
-				return success;
-			else
-				printf("\nUnjeli ste nepostojece prezime!\n");
-			break;
-
-		default :
-			printf("\nNiste unjeli niti jedan od odabira!\n");
-			break;
-	}
-
-	return success;
+	return 0;
 }
-int trazenje(pozicija g)
+position NewNode(int el)
 {
-	char *surname = NULL;
+	position Temp = NULL;
 
-	surname = (char *)malloc(30 * sizeof(char));
-	if (surname == NULL)
-		return error;
+	Temp = (position)malloc(sizeof(_el));
+	if (Temp == NULL)
+		printf("Greska!!!\n");
 
-	printf("Unesite prezime koje trazite: \n");
-	scanf("%s", surname);
+	Temp->left = NULL;
+	Temp->right = NULL;
+	Temp->x = el;
 
-	while (g->next != NULL && strcmp(g->next->prez, surname) != 0)
-	{
-		g= g->next;
-	}
-
-	printf("%s %s %d", g->next->ime, g->next->prez, g->next->god);
-
-	return success;
+	return Temp;
 }
-int brisanje(pozicija g)
+position Unos_novog_el(position S, int el)
 {
-	char *surname = NULL;
-
-	surname = (char *)malloc(30 * sizeof(char));
-	if (surname == NULL)
-		return error;
-
-	printf("Unesite prezime osobe koju zelite izbrisati : \n");
-	scanf("%s", surname);
-
-	while(g->next != NULL && strcmp(g->next->prez, surname) != 0)
+	if (S == NULL)
 	{
-		g = g -> next;
-	}
-	if (g->next != NULL)
-	{
-		g->next = g->next->next;
-	}
-	else
-	{
-		printf("Unjeli ste nepostojece prezime");
+		S = NewNode(el);
+
+		return S;
 	}
 
-	return success;
-}
-int kraj(pozicija g)
-{
-	pozicija newNode = NULL;
-	
-	char *name = NULL, *surname = NULL;
-	int year;
-
-	newNode = (pozicija)malloc(sizeof(_osoba));
-	if (newNode == NULL)
-		return error;
-
-	newNode->ime = (char *)malloc(sizeof(char) * 30);
-	if (newNode->ime == NULL)
-		return error;
-
-	newNode->prez = (char *)malloc(30 * sizeof(char));
-	if (newNode->prez == NULL)
-		return error;
-
-	name = (char *)malloc(30 * sizeof(char));
-	if (name == NULL)
-		return error;
-
-	surname = (char *)malloc(30 * sizeof(char));
-	if (surname == NULL)
-		return error;
-
-	newNode->next = NULL;
-
-	printf("Unesite ime : \n");
-	scanf("%s", name);
-	printf("Unesite prezime : \n");
-	scanf("%s", surname);
-	printf("Unesite godinu : \n");
-	scanf("%d", &year);
-
-	strcpy(newNode->ime, name);
-	strcpy(newNode->prez, surname);
-	newNode->god = year;
-
-	while (g->next != NULL)
+	if (el < S->x)
 	{
-		g = g->next;
+		S->left = Unos_novog_el(S->left, el);
+		return S;
 	}
 
-	newNode->next = g->next;
-	g->next = newNode;
-
-	return success;
-}
-int pocetak(pozicija g)
-{
-	pozicija newNode = NULL;
-
-	newNode = (pozicija)malloc(sizeof(_osoba));
-	if (newNode == NULL)
-		return error;
-
-	newNode->ime = (char *)malloc(sizeof(char) * 30);
-	if (newNode->ime == NULL)
-		return error;
-
-	newNode->prez = (char *)malloc(30 * sizeof(char));
-	if (newNode->prez == NULL)
-		return error;
-
-	newNode->next = NULL;
-
-	printf("Unesite ime : \n");
-	scanf("%s", newNode -> ime);
-	printf("Unesite prezime : \n");
-	scanf("%s", newNode -> prez);
-	printf("Unesite godinu : \n");
-	scanf("%d", &(newNode->god));
-
-	
-
-	newNode->next = g->next;
-	g->next = newNode;
-
-	return success;
-}
-int Printanje(pozicija g)
-{
-	while (g != NULL)
+	if (el > S->x)
 	{
-		printf("%s %s %d\n", g->ime, g->prez, g->god);
-		
-		g = g->next;
+		S->right = Unos_novog_el(S->right, el);
+		return S;
 	}
 
-	return success;
-}
-int upisivanje(pozicija g, char *name, char *surname, int year)
-{
-	pozicija newNode = NULL;
-
-	newNode = (pozicija)malloc(sizeof(_osoba));
-	if (newNode == NULL)
-		return error;
-
-	newNode->ime = (char *)malloc(30 * sizeof(char));
-	if (newNode->ime == NULL)
-		return error;
-	
-	newNode->prez = (char *)malloc(30 * sizeof(char));
-	if (newNode->prez == NULL)
-		return error;
-
-	newNode->next = NULL;
-
-	strcpy(newNode->ime, name);
-	strcpy(newNode->prez, surname);
-	newNode->god = year;
-
-	newNode->next = g->next;
-	g->next = newNode;
-
-	return success;
-}
-int citanje(pozicija g)
-{
-	FILE *f = NULL;
-	char *tempname;
-	char *tempsurn;
-	int tempgod;
-
-	tempname = (char *)malloc(30 * sizeof(char));
-	if (tempname == NULL)
-		return error;
-
-	tempsurn = (char *)malloc(30 * sizeof(char));
-	if (tempsurn == NULL)
-		return error;
-
-	f = fopen("osoba.txt", "r");
-	if (f == NULL)
-		return error;
-
-	while (!feof(f))
-	{
-		fscanf(f, "%s %s %d", tempname, tempsurn, &tempgod);
-
-		if (upisivanje(g, tempname, tempsurn, tempgod) == error)
-			return error;
-	}
-
-	return success;
+	return S;
 }
