@@ -11,21 +11,25 @@ typedef struct Element
 	int x;
 	position left;
 	position right;
-}el;
+}_el;
 
 position Unos_novog_el(position, int);
 position NewNode(int);
-//int Ispis(position);
+int Ispis(position);
+position Trazi(int, position);
+position Brisanje(int, position);
+position TraziMax(position);
 
 int main(void)
 {
 	position stablo = NULL;
+	position trazeni_element = NULL;
 	int izbor = 0;
 	int temp = 0;
 
 	while (izbor != 5)
 	{
-		printf("MENU\n1 - Unosenje novog elementa\n2 - Ispis elemenata\n3 - Brisanje\n4 - Pronalazenje nekog elemnta\n");
+		printf("\nMENU\n1 - Unosenje novog elementa\n2 - Ispis elemenata\n3 - Brisanje\n4 - Trazi element\n5 - Gasi\n");
 		printf("Unesite radnju koju zelite obaviti : ");
 		scanf("%d", &izbor);
 
@@ -38,12 +42,23 @@ int main(void)
 			stablo = Unos_novog_el(stablo, temp);
 			break;
 		case 2:
-			/*if (Ispis(&stablo) != 0)
-				printf("Greska!!!\n");*/
+			if (Ispis(stablo) != 0)
+				printf("Greska!!!\n");
 			break;
 		case 3:
+			printf("Unesite element koji zelite izbrisati : ");
+			scanf("%d", &temp);
+			stablo = Brisanje(temp, stablo);
 			break;
 		case 4:
+			printf("Unesite element koji zelite pronaci : ");
+			scanf("%d", &temp);
+			trazeni_element = Trazi(temp, stablo);
+
+			if (trazeni_element != NULL)
+				printf("Element %d je na adresi %x !!!\n", temp, (unsigned int)trazeni_element);
+			else
+				printf("Trazeni elemnt ne postoji!!!\n");
 			break;
 		case 5:
 			break;
@@ -54,11 +69,95 @@ int main(void)
 
 	return 0;
 }
+position TraziMax(position cvor_za_izbrisati)
+{
+	if (cvor_za_izbrisati != NULL)
+	{
+		if (cvor_za_izbrisati->right != NULL)
+		{
+			cvor_za_izbrisati = cvor_za_izbrisati->right;
+			TraziMax(cvor_za_izbrisati);
+		}
+	}
+
+	return cvor_za_izbrisati;
+}
+position Brisanje(int el, position stablo)
+{
+	position temp = NULL;
+
+	if (stablo == NULL)
+		return NULL;
+
+	if (el < stablo->x)
+	{
+		stablo->left = Brisanje(el, stablo->left);
+		return stablo;
+	}
+	if (el > stablo->x)
+	{
+		stablo->right = Brisanje(el, stablo->right);
+		return stablo;
+	}
+	if (stablo == NULL)
+	{
+		printf("Nema stabla!!!\n");
+		return stablo;
+	}
+
+	//provjera broja djece
+	if ((stablo->left != NULL) && (stablo->right != NULL))
+	{
+		temp = TraziMax(stablo->left);
+		stablo->x = temp->x;
+
+		stablo->left = Brisanje(stablo->x, stablo->left);
+
+		return stablo;
+	}
+
+	temp = stablo;
+
+	if (stablo->left == NULL)
+		stablo = stablo->right;
+	else
+		stablo = stablo->left;
+
+	free(temp);
+	
+
+	return stablo;
+}
+position Trazi(int el, position stablo)
+{
+	if (stablo == NULL)
+		return NULL;
+
+	if (stablo->x > el)
+		return Trazi(el, stablo->left);
+
+	if (stablo->x < el)
+		return Trazi(el, stablo->right);
+
+	return stablo;
+}
+int Ispis(position stablo)
+{
+	if (stablo != NULL)
+	{
+		Ispis(stablo->left);
+
+		printf("(%d)", stablo->x);
+
+		Ispis(stablo->right);
+	}
+	return 0;
+}
 position NewNode(int el)
 {
 	position Temp = NULL;
 
-	Temp = (position)malloc(sizeof(el));
+	Temp = (position)malloc(sizeof(_el));
 	if (Temp == NULL)
 		printf("Greska!!!\n");
 
@@ -73,10 +172,6 @@ position Unos_novog_el(position S, int el)
 	if (S == NULL)
 	{
 		S = NewNode(el);
-
-		S->x = el;
-		S->left = NULL;
-		S->right = NULL;
 
 		return S;
 	}
